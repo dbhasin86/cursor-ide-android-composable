@@ -1,0 +1,9 @@
+---
+description: Android Jetpack Compose flexibility notice
+globs: **/*.kt
+alwaysApply: false
+---
+
+# Flexibility Notice
+
+This is a recommended project structure, but be flexible and adapt to existing project structures. Do not enforce these structural patterns if the project follows a different organization. Focus on maintaining consistency with the existing project architecture while applying Jetpack Compose best practices.

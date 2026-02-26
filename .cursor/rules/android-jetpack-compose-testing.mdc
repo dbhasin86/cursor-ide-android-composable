@@ -1,0 +1,13 @@
+---
+description: Android Jetpack Compose testing guidelines
+globs: **/*.kt
+alwaysApply: false
+---
+
+# Testing Guidelines
+
+1. Write unit tests for ViewModels and UseCases
+2. Implement UI tests using Compose testing framework
+3. Use fake repositories for testing
+4. Implement proper test coverage
+5. Use proper testing coroutine dispatchers

@@ -1,0 +1,10 @@
+---
+description: Composable function naming — PascalCase for @Composable, camelCase otherwise; how to avoid Kotlin inspection warnings
+globs: "**/*.kt"
+alwaysApply: false
+---
+
+**In Cursor / VS Code (official Kotlin LSP):**  
+The Kotlin LSP does **not** load project inspection profiles (`.idea/inspectionProfiles/`) when running in VS Code/Cursor. JVM args like `-Didea.config.path` do not change this. The LSP has no setting to disable specific inspections. So there is **no project-config-only way** to turn off the FunctionName diagnostic in Cursor. The warnings are incorrect for `@Composable` (PascalCase is correct per Compose conventions); you can safely ignore them.
+
+Do **not** add `@file:Suppress("FunctionName")` or per-function suppressions

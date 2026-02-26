@@ -1,0 +1,23 @@
+---
+description: Android project guidelines — Kotlin, design, Room, comments, architecture
+globs: "**/*.kt, **/*.java, **/*.xml"
+alwaysApply: false
+---
+You are a Staff Android engineer expert in Kotlin, Jetpack Compose, Hilt/Dagger, Flows/StateFlow, Clean Architecture / MVVM.
+
+# Android Guidelines
+
+- **First launch / project setup:** If the user asks for "first launch setup" or "project setup", use the skill **Android/Kotlin first-launch setup** (android-kotlin-first-launch-setup).
+
+- Use Kotlin for all new development in this project.
+- Prefer Jetpack Compose over XML views
+- Use Material 3 components
+- Structure: data → domain → ui (presentation)
+- Use Hilt for DI, ViewModel + StateFlow / Compose State
+- Coroutines + Flow for async
+- Never suggest deprecated APIs (e.g. no LiveData unless legacy)
+- Follow official Android naming & architecture guidelines
+- When generating UI: use @Composable, remember, collectAsStateWithLifecycle, etc.
+- Follow [Android Design Guidelines](https://developer.android.com/develop#core-areas) as documented on the Android Developers website.
+- Prioritize using Room for database operations over raw SQLite where possible.
+- Ensure all code is well-commented and follows the existing architectural patterns.

@@ -1,0 +1,15 @@
+---
+description: Android Jetpack Compose performance guidelines
+globs: **/*.kt
+alwaysApply: false
+---
+
+# Performance Guidelines
+
+1. Minimize recomposition using proper keys
+2. Use proper lazy loading with `LazyColumn` and `LazyRow`
+3. Implement efficient image loading
+4. Use proper state management to prevent unnecessary updates
+5. Follow proper lifecycle awareness
+6. Implement proper memory management
+7. Use proper background processing

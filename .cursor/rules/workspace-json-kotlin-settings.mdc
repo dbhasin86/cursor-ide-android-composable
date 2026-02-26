@@ -1,0 +1,72 @@
+---
+description: workspace.json kotlinSettings format and patch script requirements for Kotlin LSP + Compose
+alwaysApply: false
+---
+# workspace.json kotlinSettings and Compose patch (Kotlin LSP)
+
+Use this when editing or generating `workspace.json` kotlinSettings or when creating/updating `.vscode/patch-workspace-for-compose.sh` for Android + Compose projects. For the exact `.vscode/settings.json` to use with Official Kotlin LSP on any new Android project, see the **auto-add-cursor-android-setup** rule. Following this prevents LSP false positives (MISSING_DEPENDENCY_CLASS, ARGUMENT_TYPE_MISMATCH, CANNOT_INFER_VALUE_PARAMETER_TYPE) and "Error parsing workspace.json".
+
+## Critical: Use `pluginClasspaths` (plural)
+
+The Kotlin LSP workspace-import model deserializes the `compilerArguments` JPS string into `KotlinJvmCompilerArguments`, which has the field **`pluginClasspaths`** (plural), not `pluginClasspath`.
+
+- **Wrong:** `"pluginClasspath\":[\"path/to/jar\"]` → LSP ignores it; plugin list stays empty; Compose false positives remain.
+- **Correct:** `"pluginClasspaths\":[\"path/to/jar\"]` → LSP loads the Compose compiler plugin; false positives should stop (after reload).
+
+In both hand-edited `workspace.json` and in any script that emits `compilerArguments`, use **`pluginClasspaths`** in the JSON inside the JPS string.
+
+## Recommended kotlinSettings shape in workspace.json
+
+`kotlinSettings` must be an array of full **KotlinSettingsData** objects. A minimal or partial object can cause "Error parsing workspace.json". Use this shape (replace `…` with your paths/values):
+
+```json
+"kotlinSettings" : [ {
+  "name" : "Kotlin",
+  "sourceRoots" : [ "<absolute-path-to-app/src/main/java>", "<absolute-path-to-app/src/main/kotlin>" ],
+  "configFileItems" : [ ],
+  "module" : "app",
+  "useProjectSettings" : false,
+  "implementedModuleNames" : [ ],
+  "dependsOnModuleNames" : [ ],
+  "additionalVisibleModuleNames" : [ ],
+  "productionOutputPath" : null,
+  "testOutputPath" : null,
+  "sourceSetNames" : [ ],
+  "isTestModule" : false,
+  "externalProjectId" : "app",
+  "isHmppEnabled" : true,
+  "pureKotlinSourceFolders" : [ ],
+  "kind" : "default",
+  "compilerArguments" : "J{\"jvmTarget\":\"21\",\"pluginOptions\":[],\"pluginClasspaths\":[\"<absolute-path-to-compose-compiler-plugin.jar>\"]}",
+  "additionalArguments" : null,
+  "scriptTemplates" : null,
+  "scriptTemplatesClasspath" : null,
+  "outputDirectoryForJsLibraryFiles" : null,
+  "targetPlatform" : null,
+  "externalSystemRunTasks" : [ ],
+  "version" : 5,
+  "flushNeeded" : false
+} ]
+```
+
+- **compilerArguments:** Must be a JPS-format string: `J"{ … }"` with double quotes escaped inside. Do **not** use raw `-Xplugin=...`; that yields "Invalid serialization format".
+- **pluginClasspaths:** Array of absolute paths to the Compose compiler plugin JAR (e.g. `kotlin-compose-compiler-plugin-embeddable-*.jar` from Gradle cache).
+
+## patch-workspace-for-compose.sh requirements
+
+When creating or updating this script for other Android Compose projects:
+
+1. **Emit `pluginClasspaths`** in the JPS string (e.g. `\"pluginClasspaths\\":[\\\"\" + jar_escaped + \"\\"]`), not `pluginClasspath`.
+2. **Emit full KotlinSettingsData** (all fields above: sourceRoots, configFileItems, module, useProjectSettings, implementedModuleNames, etc.), not just `name`, `module`, `compilerArguments`. Otherwise the LSP may report "Error parsing workspace.json".
+3. **Idempotency check:** Treat as "already patched" only if the file contains `pluginClasspaths` (plural) in the kotlinSettings block (e.g. check for `'pluginClasspaths' in content`), not `pluginClasspath`.
+4. **Replace only** the empty form: `"kotlinSettings" : [ ]`. Leave an existing non-empty kotlinSettings block unchanged (or merge carefully if you add merge logic later).
+5. If the main module is not `app`, parameterize or document the module name (e.g. `"module" : "app"` → actual module name).
+
+## Quick reference
+
+| What | Use |
+|------|-----|
+| Key in JPS JSON for plugin JARs | `pluginClasspaths` (plural) |
+| compilerArguments format | JPS string `J"{ \"jvmTarget\":\"21\", \"pluginOptions\":[], \"pluginClasspaths\":[\"…\"] }"` |
+| -Xplugin=... as compilerArguments | No; causes "Invalid serialization format" |
+| Minimal kotlinSettings (name, module, compilerArguments only) | No; use full KotlinSettingsData or LSP may fail to parse |
